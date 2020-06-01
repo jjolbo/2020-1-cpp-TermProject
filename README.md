@@ -7,5 +7,5 @@
 ## How to run 
 ```g++ snake.cpp main.cpp -lncurses```
 
-## Ooutput file
+## Output file
 ```./a.out```
