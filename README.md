@@ -5,4 +5,4 @@
 - 참고: https://www.youtube.com/watch?v=Cg_u60jX8Y4&list=PL2C01CC54638DD952, https://github.com/candre97/Snake
 
 ## How to run 
-```g++ -std=c++11 -o main main.cpp -lncursesw
+```g++ -std=c++11 -o main main.cpp -lncursesw```
