@@ -24,18 +24,24 @@ fSnakeGame::fSnakeGame()
 	partchar = 'x';				// character to represent the snake
 	edgechar = (char)219; // full rectangle on the key table
 	fruitchar = '*';
+	poisonchar = '-';
 	fruit.x = 0;
 	fruit.y = 0;
-	poisonchar = '-';
 	poison.x = 0;
 	poison.y = 0;
-
 	score = 0;
 	del = 110000;
+	snake_length = 3;
 	bool bEatsFruit = 0;
 	bool bEatsPoison = 0;
 	direction = 'l';
 	srand(time(NULL));
+
+	start_color();
+	init_pair(1, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+	init_pair(3, COLOR_RED, COLOR_BLACK);
+	init_pair(4, COLOR_WHITE, COLOR_RED);
 
 	InitGameWindow();
 	PositionFruit();
@@ -103,8 +109,11 @@ void fSnakeGame::DrawSnake()
 		snake.push_back(CharPosition(30 + i, 10));
 	}
 
+	// snake_color: 1
+
 	for (int32 i = 0; i < snake.size(); i++)
 	{
+		attron(COLOR_PAIR(1));
 		move(snake[i].y, snake[i].x);
 		addch(partchar);
 	}
@@ -112,6 +121,7 @@ void fSnakeGame::DrawSnake()
 }
 
 // print score at bottom of window
+// score board
 void fSnakeGame::PrintScore()
 {
 	move(maxheight - 1, 0);
@@ -148,6 +158,7 @@ void fSnakeGame::PositionFruit()
 		break;
 	}
 
+	attron(COLOR_PAIR(2));
 	move(fruit.y, fruit.x);
 	addch(fruitchar);
 	refresh();
@@ -180,7 +191,7 @@ void fSnakeGame::PositionPoison()
 		poison.y = tmpy;
 		break;
 	}
-
+	attron(COLOR_PAIR(3));
 	move(poison.y, poison.x);
 	addch(poisonchar);
 	refresh();
@@ -217,10 +228,11 @@ bool fSnakeGame::GetsFruit()
 		PrintScore();
 
 		// if score is a multiple of 100, increase snake speed
-		if ((score % 10) == 0)
+		if ((score % 100) == 0)
 		{
 			del -= 1000;
 		}
+		snake_length++;
 		return bEatsFruit = true;
 	}
 	else
@@ -232,16 +244,18 @@ bool fSnakeGame::GetsFruit()
 
 bool fSnakeGame::GetsPoison()
 {
-	if (snake[0].x == fruit.x && snake[0].y == fruit.y)
+	if (snake[0].x == poison.x && snake[0].y == poison.y)
 	{
 		PositionPoison();
 		score -= 1;
 		PrintScore();
 
-		if ((score % 10) == 0)
+		// if score is a multiple of 100, increase snake speed
+		if ((score % 100) == 0)
 		{
 			del -= 1000;
 		}
+		snake_length--;
 		return bEatsPoison = true;
 	}
 	else
@@ -262,24 +276,32 @@ void fSnakeGame::MoveSnake()
 		{
 			direction = 'l';
 		}
+		else
+			snake_length = -1;
 		break;
 	case KEY_RIGHT:
 		if (direction != 'l')
 		{
 			direction = 'r';
 		}
+		else
+			snake_length = -1;
 		break;
 	case KEY_UP:
 		if (direction != 'd')
 		{
 			direction = 'u';
 		}
+		else
+			snake_length = -1;
 		break;
 	case KEY_DOWN:
 		if (direction != 'u')
 		{
 			direction = 'd';
 		}
+		else
+			snake_length = -1;
 		break;
 	case KEY_BACKSPACE:
 		direction = 'q'; // key to quit the game
@@ -287,8 +309,9 @@ void fSnakeGame::MoveSnake()
 	}
 
 	// the snake doesn't eat fruit, remains same size
-	if (!bEatsFruit || !bEatsPoison)
+	if (!bEatsFruit)
 	{
+		attron(COLOR_PAIR(1));
 		move(snake[snake.size() - 1].y, snake[snake.size() - 1].x); // moves at the end of the tail
 		printw(" ");																								// add empty ch to remove last character
 		refresh();
@@ -316,9 +339,13 @@ void fSnakeGame::MoveSnake()
 
 	// move to the new CharPosition coordinates
 	move(snake[0].y, snake[0].x);
-	if (bEatsFruit)
+
+	if (bEatsPoison)
 	{
-		addch(partchar);
+		// TODO: 뱀 꼬리 하나 줄여야되는데 이 부분에 구현해야함.
+		addch(' ');
+		refresh();
+		return;
 	}
 
 	addch(partchar); // add a new head
@@ -330,10 +357,12 @@ void fSnakeGame::PlayGame()
 {
 	while (1)
 	{
-		if (FatalCollision())
+		if (FatalCollision() || snake_length < 3)
 		{
 			move((maxheight - 2) / 2, (maxwidth - 5) / 2);
-			printw("GAME OVER");
+			attron(COLOR_PAIR(4));
+			refresh();
+			printw("!!!GAME OVER!!!");
 			break;
 		}
 

@@ -25,6 +25,7 @@ class fSnakeGame
 {
 private:
 	int32 score, del, maxwidth, maxheight;
+	int snake_length;
 	char direction, partchar, edgechar, fruitchar, poisonchar;
 	// partchar is the character representing the snake's body
 	// edgechar is the character representing the edge of the game window
