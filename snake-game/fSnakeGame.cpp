@@ -1,5 +1,8 @@
 #include "fSnakeGame.h"
 #include <unistd.h>
+#include <ncurses.h>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -32,6 +35,8 @@ fSnakeGame::fSnakeGame()
 	score = 0;
 	del = 110000;
 	snake_length = 3;
+	fruit_cnt = 0;
+	poison_cnt = 0;
 	bool bEatsFruit = 0;
 	bool bEatsPoison = 0;
 	direction = 'l';
@@ -42,6 +47,8 @@ fSnakeGame::fSnakeGame()
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_RED, COLOR_BLACK);
 	init_pair(4, COLOR_WHITE, COLOR_RED);
+	init_pair(5, COLOR_RED, COLOR_WHITE);
+	init_pair(6, COLOR_WHITE, COLOR_BLACK);
 
 	InitGameWindow();
 	PositionFruit();
@@ -65,38 +72,48 @@ void fSnakeGame::InitGameWindow()
 {
 	initscr(); // initialise the screen
 	nodelay(stdscr, TRUE);
-	keypad(stdscr, true);									 // initialise the keyboard: we can use arrows for directions
-	noecho();															 // user input is not displayed on the screen
-	curs_set(0);													 // cursor symbol is not not displayed on the screen (Linux)
-	getmaxyx(stdscr, maxheight, maxwidth); // define dimensions of game window
+	keypad(stdscr, true); // initialise the keyboard: we can use arrows for directions
+	noecho();							// user input is not displayed on the screen
+	curs_set(0);					// cursor symbol is not not displayed on the screen (Linux)
+	return;
+}
+
+void fSnakeGame::getStrMap()
+{
+
+	ifstream inStream;
+	inStream.open("./map.txt");
+	if (inStream.fail())
+	{
+		cerr << "Input file opening failed.\n";
+		exit(1);
+	}
+
+	for (int i = 0; i < 21; i++)
+	{
+		for (int j = 0; j < 21; j++)
+		{
+			inStream >> map_arr[i][j];
+		}
+	}
 	return;
 }
 
 // draw the game window
 void fSnakeGame::DrawWindow()
 {
-	for (int32 i = 0; i < maxwidth; i++) // draws top
+	game_map = newwin(21, 21, 0, 0);
+	getStrMap();
+	for (int i = 0; i < 21; i++)
 	{
-		move(0, i);
-		addch(edgechar);
-	}
-
-	for (int32 i = 0; i < maxwidth; i++) // draws bottom
-	{
-		move(maxheight - 2, i);
-		addch(edgechar);
-	}
-
-	for (int32 i = 0; i < maxheight - 1; i++) // draws left side
-	{
-		move(i, 0);
-		addch(edgechar);
-	}
-
-	for (int32 i = 0; i < maxheight - 1; i++) // draws right side
-	{
-		move(i, maxwidth - 1);
-		addch(edgechar);
+		for (int j = 0; j < 21; j++)
+		{
+			if (map_arr[i][j] == 1 || map_arr[i][j] == 2)
+			{
+				move(j, i);
+				addch(edgechar);
+			}
+		}
 	}
 	return;
 }
@@ -106,7 +123,7 @@ void fSnakeGame::DrawSnake()
 {
 	for (int32 i = 0; i < 3; i++)
 	{
-		snake.push_back(CharPosition(30 + i, 10));
+		snake.push_back(CharPosition(21 / 2 + i, 21 / 2));
 	}
 
 	// snake_color: 1
@@ -120,12 +137,54 @@ void fSnakeGame::DrawSnake()
 	return;
 }
 
-// print score at bottom of window
 // score board
+void fSnakeGame::PrintBorder()
+{
+	// Draw Border
+	// top
+	attron(COLOR_PAIR(5));
+
+	for (int i = 0; i < 21; i++)
+	{
+		move(0, 25 + i);
+		addch('#');
+	}
+	//bottom
+	for (int i = 0; i < 21; i++)
+	{
+		move(9, 25 + i);
+		addch('#');
+	}
+	// left
+	for (int i = 0; i < 10 - 1; i++)
+	{
+		move(i, 25);
+		addch('#');
+	}
+	// right
+	for (int i = 0; i < 10 - 1; i++)
+	{
+		move(i, 45);
+		addch('#');
+	}
+}
+
+// print score at bottom of window
 void fSnakeGame::PrintScore()
 {
-	move(maxheight - 1, 0);
+	PrintBorder();
+	attron(COLOR_PAIR(6));
+	move(1, 28);
+	printw("Score board");
+
+	move(3, 28);
 	printw("Score: %d", score);
+
+	move(5, 28);
+	printw("Growth item: %d", fruit_cnt);
+
+	move(7, 28);
+	printw("Poison item: %d", poison_cnt);
 	return;
 }
 
@@ -134,8 +193,8 @@ void fSnakeGame::PositionFruit()
 {
 	while (1)
 	{
-		int32 tmpx = rand() % maxwidth + 1; // +1 to avoid the 0
-		int32 tmpy = rand() % maxheight + 1;
+		int32 tmpx = rand() % 21 + 1; // +1 to avoid the 0
+		int32 tmpy = rand() % 21 + 1;
 
 		// check that the fruit is not positioned on the snake
 		for (int32 i = 0; i < snake.size(); i++)
@@ -147,7 +206,7 @@ void fSnakeGame::PositionFruit()
 		}
 
 		// check that the fruit is positioned within the game window
-		if (tmpx >= maxwidth - 2 || tmpy >= maxheight - 3)
+		if (tmpx >= 21 - 2 || tmpy >= 21 - 3)
 		{
 			continue; // if true, ignore the following and go back to the beginning of function
 		}
@@ -168,8 +227,8 @@ void fSnakeGame::PositionPoison()
 {
 	while (1)
 	{
-		int32 tmpx = rand() % maxwidth + 1; // +1 to avoid the 0
-		int32 tmpy = rand() % maxheight + 1;
+		int32 tmpx = rand() % 21 + 1; // +1 to avoid the 0
+		int32 tmpy = rand() % 21 + 1;
 
 		// check that the fruit is not positioned on the snake
 		for (int32 i = 0; i < snake.size(); i++)
@@ -181,7 +240,7 @@ void fSnakeGame::PositionPoison()
 		}
 
 		// check that the fruit is positioned within the game window
-		if (tmpx >= maxwidth - 2 || tmpy >= maxheight - 3)
+		if (tmpx >= 21 - 2 || tmpy >= 21 - 3)
 		{
 			continue; // if true, ignore the following and go back to the beginning of function
 		}
@@ -201,7 +260,7 @@ void fSnakeGame::PositionPoison()
 bool fSnakeGame::FatalCollision()
 {
 	// if the snake hits the edge of the window
-	if (snake[0].x == 0 || snake[0].x == maxwidth - 1 || snake[0].y == 0 || snake[0].y == maxheight - 2)
+	if (snake[0].x == 0 || snake[0].x == 21 - 1 || snake[0].y == 0 || snake[0].y == 21 - 2)
 	{
 		return true;
 	}
@@ -225,6 +284,8 @@ bool fSnakeGame::GetsFruit()
 	{
 		PositionFruit();
 		score += 1;
+		fruit_cnt++;
+
 		PrintScore();
 
 		// if score is a multiple of 100, increase snake speed
@@ -248,6 +309,8 @@ bool fSnakeGame::GetsPoison()
 	{
 		PositionPoison();
 		score -= 1;
+		poison_cnt++;
+
 		PrintScore();
 
 		// if score is a multiple of 100, increase snake speed
@@ -359,7 +422,7 @@ void fSnakeGame::PlayGame()
 	{
 		if (FatalCollision() || snake_length < 3)
 		{
-			move((maxheight - 2) / 2, (maxwidth - 5) / 2);
+			move((21 - 2) / 2, (21 - 5) / 2);
 			attron(COLOR_PAIR(4));
 			refresh();
 			printw("!!!GAME OVER!!!");
