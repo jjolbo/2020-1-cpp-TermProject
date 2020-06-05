@@ -8,7 +8,7 @@ This is handling all user interaction. For game logic, please see fSnakeGame.h.
 // Unreal standards
 using int32 = int;
 
-int32 maxheight, maxwidth;
+// int32 maxheight, maxwidth;
 void PlayGame();
 int32 IsUserReady();
 int32 AskUserToPlayAgain();
@@ -39,8 +39,8 @@ void ClearCentre(float x, float y)
 	clear(); // clear the screen if the game is played for the 2nd time
 	initscr();
 	noecho();
-	getmaxyx(stdscr, maxheight, maxwidth);
-	move((maxheight / y), (maxwidth / x));
+	// getmaxyx(stdscr, maxheight, maxwidth);
+	move((21 / y), (21 / x));
 }
 
 // receive user confirmation
