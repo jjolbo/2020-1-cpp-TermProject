@@ -37,18 +37,20 @@ fSnakeGame::fSnakeGame()
 	snake_length = 3;
 	fruit_cnt = 0;
 	poison_cnt = 0;
+	gate_cnt = 0;
+	max_snake = 3;
 	bool bEatsFruit = 0;
 	bool bEatsPoison = 0;
 	direction = 'l';
 	srand(time(NULL));
 
 	start_color();
-	init_pair(1, COLOR_YELLOW, COLOR_BLACK);
-	init_pair(2, COLOR_GREEN, COLOR_BLACK);
-	init_pair(3, COLOR_RED, COLOR_BLACK);
-	init_pair(4, COLOR_WHITE, COLOR_RED);
-	init_pair(5, COLOR_RED, COLOR_WHITE);
-	init_pair(6, COLOR_WHITE, COLOR_BLACK);
+	init_pair(1, COLOR_YELLOW, COLOR_BLACK); // snake color
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);	 // fruit color
+	init_pair(3, COLOR_RED, COLOR_BLACK);		 // poison color
+	init_pair(4, COLOR_WHITE, COLOR_RED);		 //
+	init_pair(5, COLOR_RED, COLOR_WHITE);		 // score board border color
+	init_pair(6, COLOR_WHITE, COLOR_BLACK);	 // score board contents color
 
 	InitGameWindow();
 	PositionFruit();
@@ -56,7 +58,6 @@ fSnakeGame::fSnakeGame()
 	DrawWindow();
 	DrawSnake();
 	PrintScore();
-
 	refresh();
 }
 
@@ -102,7 +103,7 @@ void fSnakeGame::getStrMap()
 // draw the game window
 void fSnakeGame::DrawWindow()
 {
-	game_map = newwin(21, 21, 0, 0);
+	// game_map = newwin(21, 21, 0, 0);
 	getStrMap();
 	for (int i = 0; i < 21; i++)
 	{
@@ -110,7 +111,7 @@ void fSnakeGame::DrawWindow()
 		{
 			if (map_arr[i][j] == 1 || map_arr[i][j] == 2)
 			{
-				move(j, i);
+				move(j, i + 4);
 				addch(edgechar);
 			}
 		}
@@ -125,8 +126,6 @@ void fSnakeGame::DrawSnake()
 	{
 		snake.push_back(CharPosition(21 / 2 + i, 21 / 2));
 	}
-
-	// snake_color: 1
 
 	for (int32 i = 0; i < snake.size(); i++)
 	{
@@ -144,27 +143,27 @@ void fSnakeGame::PrintBorder()
 	// top
 	attron(COLOR_PAIR(5));
 
-	for (int i = 0; i < 21; i++)
+	for (int i = 0; i < 26; i++)
 	{
-		move(0, 25 + i);
+		move(0, 30 + i);
 		addch('#');
 	}
 	//bottom
-	for (int i = 0; i < 21; i++)
+	for (int i = 0; i < 26; i++)
 	{
-		move(9, 25 + i);
+		move(15, 30 + i);
 		addch('#');
 	}
 	// left
-	for (int i = 0; i < 10 - 1; i++)
+	for (int i = 0; i < 17 - 1; i++)
 	{
-		move(i, 25);
+		move(i, 30);
 		addch('#');
 	}
 	// right
-	for (int i = 0; i < 10 - 1; i++)
+	for (int i = 0; i < 17 - 1; i++)
 	{
-		move(i, 45);
+		move(i, 55);
 		addch('#');
 	}
 }
@@ -174,17 +173,24 @@ void fSnakeGame::PrintScore()
 {
 	PrintBorder();
 	attron(COLOR_PAIR(6));
-	move(1, 28);
-	printw("Score board");
+	move(1, 33);
+	printw("<Score board>");
 
-	move(3, 28);
-	printw("Score: %d", score);
+	move(3, 33);
+	printw("B: %d", snake_length / max_snake);
 
-	move(5, 28);
-	printw("Growth item: %d", fruit_cnt);
+	move(5, 33);
+	printw("+: %d", fruit_cnt);
 
-	move(7, 28);
-	printw("Poison item: %d", poison_cnt);
+	move(7, 33);
+	printw("-: %d", poison_cnt);
+
+	move(9, 33);
+	printw("G: %d", gate_cnt);
+
+	move(11, 33);
+	printw("time: ");
+
 	return;
 }
 
@@ -193,8 +199,8 @@ void fSnakeGame::PositionFruit()
 {
 	while (1)
 	{
-		int32 tmpx = rand() % 21 + 1; // +1 to avoid the 0
-		int32 tmpy = rand() % 21 + 1;
+		int32 tmpx = rand() % 21 + 6; // +1 to avoid the 0
+		int32 tmpy = rand() % 21 + 6;
 
 		// check that the fruit is not positioned on the snake
 		for (int32 i = 0; i < snake.size(); i++)
@@ -227,8 +233,8 @@ void fSnakeGame::PositionPoison()
 {
 	while (1)
 	{
-		int32 tmpx = rand() % 21 + 1; // +1 to avoid the 0
-		int32 tmpy = rand() % 21 + 1;
+		int32 tmpx = rand() % 21 + 4; // +1 to avoid the 0
+		int32 tmpy = rand() % 21 + 4;
 
 		// check that the fruit is not positioned on the snake
 		for (int32 i = 0; i < snake.size(); i++)
@@ -260,7 +266,7 @@ void fSnakeGame::PositionPoison()
 bool fSnakeGame::FatalCollision()
 {
 	// if the snake hits the edge of the window
-	if (snake[0].x == 0 || snake[0].x == 21 - 1 || snake[0].y == 0 || snake[0].y == 21 - 2)
+	if (snake[0].x == 4 || snake[0].x == 21 + 3 || snake[0].y == 0 || snake[0].y == 21 - 1)
 	{
 		return true;
 	}
@@ -285,7 +291,7 @@ bool fSnakeGame::GetsFruit()
 		PositionFruit();
 		score += 1;
 		fruit_cnt++;
-
+		max_snake++;
 		PrintScore();
 
 		// if score is a multiple of 100, increase snake speed
@@ -316,7 +322,7 @@ bool fSnakeGame::GetsPoison()
 		// if score is a multiple of 100, increase snake speed
 		if ((score % 100) == 0)
 		{
-			del -= 1000;
+			del += 1000;
 		}
 		snake_length--;
 		return bEatsPoison = true;

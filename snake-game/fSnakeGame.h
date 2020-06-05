@@ -31,7 +31,7 @@ private:
 	WINDOW *game_map;
 	int map_arr[30][21];
 	int32 score, del;
-	int snake_length, fruit_cnt, poison_cnt, gate_cnt;
+	int snake_length, fruit_cnt, poison_cnt, gate_cnt, max_snake;
 	char direction, partchar, edgechar, fruitchar, poisonchar;
 	// partchar is the character representing the snake's body
 	// edgechar is the character representing the edge of the game window
