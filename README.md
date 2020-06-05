@@ -5,7 +5,10 @@
 - 참고: https://www.youtube.com/watch?v=Cg_u60jX8Y4&list=PL2C01CC54638DD952, https://github.com/candre97/Snake, https://github.com/romanedgn/snake-game
 
 ## How to run 
-```g++ snake.cpp main.cpp -lncurses```
+```g++ fSnakeGame.cpp main.cpp -lncurses```
 
 ## Output file
 ```./a.out```
+
+### 컴파일했는데 작동 안 하고 바로 꺼질 때
+```cd ../snake-game``` 후 다시 컴파일하면 작동될 것 
