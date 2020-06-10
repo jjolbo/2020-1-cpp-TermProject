@@ -55,7 +55,7 @@ private:
 	void MoveSnake();
 	bool GetsFruit();
 	bool GetsPoison();
-	void getStrMap(int);
+	void getStrMap();
 
 public:
 	fSnakeGame(int _level);

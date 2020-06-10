@@ -106,7 +106,7 @@ string format_string(const std::string fmt, ...)
 	return buffer;
 }
 
-void fSnakeGame::getStrMap(int level)
+void fSnakeGame::getStrMap()
 {
 
 	ifstream inStream;
@@ -134,7 +134,7 @@ void fSnakeGame::getStrMap(int level)
 void fSnakeGame::DrawWindow()
 {
 	// game_map = newwin(21, 21, 0, 0);
-	getStrMap(level);
+	getStrMap();
 	for (int i = 0; i < 21; i++)
 	{
 		for (int j = 0; j < 21; j++)
