@@ -9,6 +9,8 @@ The game is a very simple version of the classic snake game.
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <time.h>
+
 using namespace std;
 
 #ifndef FSNAKEGAME_H
@@ -27,11 +29,11 @@ struct CharPosition
 class fSnakeGame
 {
 private:
-	WINDOW *win_score;
-	WINDOW *game_map;
+	time_t start, end;
 	int map_arr[30][21];
 	int32 score, del;
-	int snake_length, fruit_cnt, poison_cnt, gate_cnt, max_snake;
+	double result;
+	int snake_length, fruit_cnt, poison_cnt, gate_cnt, max_snake, level;
 	char direction, partchar, edgechar, fruitchar, poisonchar;
 	// partchar is the character representing the snake's body
 	// edgechar is the character representing the edge of the game window
@@ -53,10 +55,10 @@ private:
 	void MoveSnake();
 	bool GetsFruit();
 	bool GetsPoison();
-	void getStrMap();
+	void getStrMap(int);
 
 public:
-	fSnakeGame();
+	fSnakeGame(int _level);
 	~fSnakeGame(); // destructor for cleanup and memory deallocation
 	void PlayGame();
 };
