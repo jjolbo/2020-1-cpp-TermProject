@@ -106,7 +106,7 @@ string format_string(const std::string fmt, ...)
 	return buffer;
 }
 
-void fSnakeGame::getStrMap(int level)
+void fSnakeGame::getStrMap()
 {
 
 	ifstream inStream;
@@ -134,7 +134,7 @@ void fSnakeGame::getStrMap(int level)
 void fSnakeGame::DrawWindow()
 {
 	// game_map = newwin(21, 21, 0, 0);
-	getStrMap(level);
+	getStrMap();
 	for (int i = 0; i < 21; i++)
 	{
 		for (int j = 0; j < 21; j++)
@@ -152,16 +152,23 @@ void fSnakeGame::DrawWindow()
 // draw snake's body
 void fSnakeGame::DrawSnake()
 {
-	for (int32 i = 0; i < 3; i++)
+	for (int i = 0; i < 21; i++)
 	{
-		snake.push_back(CharPosition(21 / 2 + i, 21 / 2));
+		for (int j = 0; j < 21; j++)
+		{
+			if (map_arr[i][j] == 3 || map_arr[i][j] == 4)
+			{
+				snake.push_back(CharPosition(i, j));
+			}
+		}
 	}
 
-	for (int32 i = 0; i < snake.size(); i++)
+	for (int32 i = 0; i < snake_length - 1; i++)
 	{
 		attron(COLOR_PAIR(1));
 		move(snake[i].y, snake[i].x);
-		addch(partchar);
+		printw("%c", partchar);
+		// addch(partchar);
 	}
 	return;
 }
@@ -319,6 +326,7 @@ bool fSnakeGame::FatalCollision()
 // define behaviour when snake eats the fruit
 bool fSnakeGame::GetsFruit()
 {
+
 	if (snake[0].x == fruit.x && snake[0].y == fruit.y)
 	{
 		PositionFruit();
@@ -328,7 +336,7 @@ bool fSnakeGame::GetsFruit()
 		PrintScore();
 
 		// if score is a multiple of 100, increase snake speed
-		if ((score % 100) == 0)
+		if ((score % 10) == 0)
 		{
 			del -= 1000;
 		}
@@ -353,7 +361,7 @@ bool fSnakeGame::GetsPoison()
 		PrintScore();
 
 		// if score is a multiple of 100, increase snake speed
-		if ((score % 100) == 0)
+		if ((score % 10) == 0)
 		{
 			del += 1000;
 		}
@@ -440,17 +448,28 @@ void fSnakeGame::MoveSnake()
 	}
 
 	// move to the new CharPosition coordinates
-	move(snake[0].y, snake[0].x);
 
 	if (bEatsPoison)
 	{
 		// TODO: 뱀 꼬리 하나 줄여야되는데 이 부분에 구현해야함.
-		addch(' ');
+		move(13, 33);
+		printw("snake length: %d", snake_length);
+
+		mvprintw(snake[snake.size() - 1].y, snake[snake.size() - 1].x, " ");
+		snake.pop_back();
+
+		for (int i = 0; i < snake_length; i++)
+		{
+			move(snake[i].y, snake[i].x);
+			printw("%c", partchar); // add a new head
+		}
 		refresh();
+
 		return;
 	}
 
-	addch(partchar); // add a new head
+	move(snake[0].y, snake[0].x);
+	printw("%c", partchar); // add a new head
 	refresh();
 	return;
 }
@@ -467,8 +486,8 @@ void fSnakeGame::PlayGame()
 			attron(COLOR_PAIR(4));
 			refresh();
 			printw("!!!GAME OVER!!!");
-			move((21 - 2) / 2 + 2, (21 - 5) / 2);
-			printw("time: %f", result);
+			move((21 - 2) / 2 + 2, (21 - 5) / 2 + 2);
+			printw("time: %.2f", result);
 			break;
 		}
 
