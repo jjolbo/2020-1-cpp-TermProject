@@ -3,6 +3,7 @@
 #include <ncurses.h>
 #include <fstream>
 #include <iostream>
+#include <time.h>
 
 using namespace std;
 
@@ -21,9 +22,10 @@ CharPosition::CharPosition()
 	y = 0;
 }
 
-fSnakeGame::fSnakeGame()
+fSnakeGame::fSnakeGame(int _level)
 {
 	// variables initialisation:
+	start = time(NULL);
 	partchar = 'x';				// character to represent the snake
 	edgechar = (char)219; // full rectangle on the key table
 	fruitchar = '*';
@@ -33,7 +35,7 @@ fSnakeGame::fSnakeGame()
 	poison.x = 0;
 	poison.y = 0;
 	score = 0;
-	del = 110000;
+	del = 150000;
 	snake_length = 3;
 	fruit_cnt = 0;
 	poison_cnt = 0;
@@ -42,6 +44,7 @@ fSnakeGame::fSnakeGame()
 	bool bEatsFruit = 0;
 	bool bEatsPoison = 0;
 	direction = 'l';
+	level = _level;
 	srand(time(NULL));
 
 	start_color();
@@ -79,11 +82,38 @@ void fSnakeGame::InitGameWindow()
 	return;
 }
 
-void fSnakeGame::getStrMap()
+string format_string(const std::string fmt, ...)
+{
+	int size = ((int)fmt.size()) * 2;
+	std::string buffer;
+	va_list ap;
+	while (1)
+	{
+		buffer.resize(size);
+		va_start(ap, fmt);
+		int n = vsnprintf((char *)buffer.data(), size, fmt.c_str(), ap);
+		va_end(ap);
+		if (n > -1 && n < size)
+		{
+			buffer.resize(n);
+			return buffer;
+		}
+		if (n > -1)
+			size = n + 1;
+		else
+			size *= 2;
+	}
+	return buffer;
+}
+
+void fSnakeGame::getStrMap(int level)
 {
 
 	ifstream inStream;
-	inStream.open("./map.txt");
+	string line;
+	string filename = format_string("./map_%d.txt", level);
+
+	inStream.open(filename);
 	if (inStream.fail())
 	{
 		cerr << "Input file opening failed.\n";
@@ -94,7 +124,7 @@ void fSnakeGame::getStrMap()
 	{
 		for (int j = 0; j < 21; j++)
 		{
-			inStream >> map_arr[i][j];
+			inStream >> map_arr[j][i];
 		}
 	}
 	return;
@@ -104,7 +134,7 @@ void fSnakeGame::getStrMap()
 void fSnakeGame::DrawWindow()
 {
 	// game_map = newwin(21, 21, 0, 0);
-	getStrMap();
+	getStrMap(level);
 	for (int i = 0; i < 21; i++)
 	{
 		for (int j = 0; j < 21; j++)
@@ -177,19 +207,22 @@ void fSnakeGame::PrintScore()
 	printw("<Score board>");
 
 	move(3, 33);
-	printw("B: %d", snake_length / max_snake);
+	printw("Level %c", level + 96);
 
 	move(5, 33);
-	printw("+: %d", fruit_cnt);
+	printw("B: %d", snake_length / max_snake);
 
 	move(7, 33);
-	printw("-: %d", poison_cnt);
+	printw("+: %d", fruit_cnt);
 
 	move(9, 33);
-	printw("G: %d", gate_cnt);
+	printw("-: %d", poison_cnt);
 
 	move(11, 33);
-	printw("time: ");
+	printw("G: %d", gate_cnt);
+
+	// move(11, 33);
+	// printw("time: ", result);
 
 	return;
 }
@@ -233,8 +266,8 @@ void fSnakeGame::PositionPoison()
 {
 	while (1)
 	{
-		int32 tmpx = rand() % 21 + 4; // +1 to avoid the 0
-		int32 tmpy = rand() % 21 + 4;
+		int32 tmpx = rand() % 21 + 6; // +1 to avoid the 0
+		int32 tmpy = rand() % 21 + 6;
 
 		// check that the fruit is not positioned on the snake
 		for (int32 i = 0; i < snake.size(); i++)
@@ -428,10 +461,14 @@ void fSnakeGame::PlayGame()
 	{
 		if (FatalCollision() || snake_length < 3)
 		{
+			end = time(NULL);
+			result = double(end - start);
 			move((21 - 2) / 2, (21 - 5) / 2);
 			attron(COLOR_PAIR(4));
 			refresh();
 			printw("!!!GAME OVER!!!");
+			move((21 - 2) / 2 + 2, (21 - 5) / 2);
+			printw("time: %f", result);
 			break;
 		}
 
