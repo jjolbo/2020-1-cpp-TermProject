@@ -29,7 +29,7 @@ struct CharPosition
 class fSnakeGame
 {
 private:
-	time_t start, end;
+	time_t start, end, f_start, f_end, p_start, p_end;
 	int map_arr[30][21];
 	int32 score, del;
 	double result;
