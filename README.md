@@ -4,7 +4,7 @@
 - 보고서: https://drive.google.com/file/d/166S-5FqH_kFsUqqUTnWTGqOZkMrFltvs/view?usp=sharing
 
 ## How to run 
-```g++ fSnakeGame.cpp main.cpp -lncurses```
+```g++ fSnakegame.cpp main.cpp -lncurses```
 
 ## Output file
 ```./a.out```
