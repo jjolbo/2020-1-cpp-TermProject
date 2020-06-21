@@ -225,7 +225,7 @@ void fSnakeGame::PrintScore()
 	printw("Level %c", level + 96);
 
 	move(5, 33);
-	printw("B: %d", snake_length / max_snake);
+	printw("B: %d", snake_length );
 
 	move(7, 33);
 	printw("+: %d", fruit_cnt);
@@ -327,6 +327,11 @@ bool fSnakeGame::FatalCollision()
 			return true;
 		}
 	}
+	
+	
+	// if the snake has achieved the goal
+	if (snake_length == 20)
+		return true;
 
 	return false;
 }
