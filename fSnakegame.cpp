@@ -225,7 +225,7 @@ void fSnakeGame::PrintScore()
 	printw("Level %c", level + 96);
 
 	move(5, 33);
-	printw("B: %d", snake_length );
+	printw("B: %d", snake_length);
 
 	move(7, 33);
 	printw("+: %d", fruit_cnt);
@@ -327,11 +327,6 @@ bool fSnakeGame::FatalCollision()
 			return true;
 		}
 	}
-	
-	
-	// if the snake has achieved the goal
-	if (snake_length == 20)
-		return true;
 
 	return false;
 }
@@ -594,8 +589,6 @@ void fSnakeGame::MoveSnake()
 	if (bEatsPoison)
 	{
 		// TODO: 뱀 꼬리 하나 줄여야되는데 이 부분에 구현해야함.
-		move(13, 33);
-		printw("snake length: %d", snake_length);
 
 		mvprintw(snake[snake.size() - 1].y, snake[snake.size() - 1].x, " ");
 		snake.pop_back();
@@ -620,7 +613,7 @@ void fSnakeGame::PlayGame()
 {
 	while (1)
 	{
-		if (FatalCollision() || snake_length < 3)
+		if (FatalCollision() || snake_length < 3 || snake_length == 20)
 		{
 			end = time(NULL);
 			result = double(end - start);
