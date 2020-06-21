@@ -1,14 +1,6 @@
-/*
-This is the console executable, that makes use of the fSnakeGame class.
-This is handling all user interaction. For game logic, please see fSnakeGame.h.
-*/
-
 #include "fSnakegame.h"
 #include <ncurses.h>
-// Unreal standards
-//using int = int;
 
-// int maxheight, maxwidth;
 void PlayGame();
 int IsUserReady();
 int AskUserToPlayAgain();
@@ -27,7 +19,7 @@ int main()
 
 	char inputs[4] = {'a', 'b', 'c', 'd'};
 	int n_input;
-	if (IsUserReady() == 'y') // wait for confirmation of the user
+	if (IsUserReady() == 'y')
 		do
 		{
 			for (int i = 0; i < 4; i++)
@@ -44,17 +36,14 @@ int main()
 	return 0;
 }
 
-// clear the screen and centre the cursor
 void ClearCentre(float x, float y)
 {
-	clear(); // clear the screen if the game is played for the 2nd time
+	clear();
 	initscr();
 	noecho();
-	// getmaxyx(stdscr, maxheight, maxwidth);
 	move((21 / y), (21 / x));
 }
 
-// receive user confirmation
 int UserInput()
 {
 	int UserInput = getch();
@@ -65,7 +54,6 @@ int UserInput()
 	return UserInput;
 }
 
-// print start menu
 int IsUserReady()
 {
 	attron(A_BOLD);
@@ -77,7 +65,6 @@ int IsUserReady()
 	return UserInput();
 }
 
-// print level
 int IsUserLevel()
 {
 	attron(A_BOLD);
@@ -93,7 +80,6 @@ int IsUserLevel()
 	return UserInput();
 }
 
-// print end of the game menu and ask user to play again
 int AskUserToPlayAgain()
 {
 	init_pair(1, COLOR_RED, COLOR_WHITE);

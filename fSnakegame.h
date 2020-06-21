@@ -1,8 +1,3 @@
-/*
-This is the game logic (no user interaction).
-The game is a very simple version of the classic snake game.
-*/
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -17,9 +12,6 @@ using namespace std;
 
 #ifndef FSNAKEGAME_H
 #define FSNAKEGAME_H
-
-// Unreal standards
-//using int = int;
 
 struct CharPosition
 {
@@ -37,15 +29,11 @@ private:
 	double result;
 	int snake_length, fruit_cnt, poison_cnt, gate_cnt, max_snake, level;
 	char direction, partchar, edgechar, fruitchar, poisonchar, gatechar;
-	// partchar is the character representing the snake's body
-	// edgechar is the character representing the edge of the game window
-	// fruitchar is the character representing the fruit
-	// del stands for delay
 	bool bEatsFruit, bEatsPoison, bEatsGate;
-	CharPosition fruit; // need to clarify this combination
+	CharPosition fruit;
 	CharPosition poison;
-	vector<CharPosition> Gate; // represent the snake's body
-	vector<CharPosition> snake; // represent the snake's body
+	vector<CharPosition> Gate;
+	vector<CharPosition> snake;
 
 	void InitGameWindow();
 	void DrawWindow();
@@ -65,7 +53,7 @@ private:
 
 public:
 	fSnakeGame(int _level);
-	~fSnakeGame(); // destructor for cleanup and memory deallocation
+	~fSnakeGame();
 	void PlayGame();
 };
 

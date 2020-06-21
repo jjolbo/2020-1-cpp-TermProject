@@ -7,9 +7,6 @@
 
 using namespace std;
 
-// Unreal coding standards
-//using int = int;
-
 CharPosition::CharPosition(int col, int row)
 {
 	x = col;
@@ -24,10 +21,9 @@ CharPosition::CharPosition()
 
 fSnakeGame::fSnakeGame(int _level)
 {
-	// variables initialisation:
 	start = time(NULL);
-	partchar = 'x';				// character to represent the snake
-	edgechar = (char)219; // full rectangle on the key table
+	partchar = 'x';
+	edgechar = (char)219;
 	fruitchar = '*';
 	poisonchar = '-';
 	gatechar = '^';
@@ -73,14 +69,13 @@ fSnakeGame::~fSnakeGame()
 	endwin();
 }
 
-// initialise the game window
 void fSnakeGame::InitGameWindow()
 {
-	initscr(); // initialise the screen
+	initscr();
 	nodelay(stdscr, TRUE);
-	keypad(stdscr, true); // initialise the keyboard: we can use arrows for directions
-	noecho();							// user input is not displayed on the screen
-	curs_set(0);					// cursor symbol is not not displayed on the screen (Linux)
+	keypad(stdscr, true);
+	noecho();
+	curs_set(0);
 	return;
 }
 
@@ -131,10 +126,8 @@ void fSnakeGame::getStrMap()
 	return;
 }
 
-// draw the game window
 void fSnakeGame::DrawWindow()
 {
-	// game_map = newwin(21, 21, 0, 0);
 	getStrMap();
 	for (int i = 0; i < 21; i++)
 	{
@@ -157,7 +150,6 @@ void fSnakeGame::DrawWindow()
 	return;
 }
 
-// draw snake's body
 void fSnakeGame::DrawSnake()
 {
 	for (int i = 0; i < 21; i++)
@@ -176,7 +168,6 @@ void fSnakeGame::DrawSnake()
 		attron(COLOR_PAIR(1));
 		move(snake[i].y, snake[i].x);
 		printw("%c", partchar);
-		// addch(partchar);
 	}
 	return;
 }
@@ -213,7 +204,6 @@ void fSnakeGame::PrintBorder()
 	}
 }
 
-// print score at bottom of window
 void fSnakeGame::PrintScore()
 {
 	PrintBorder();
@@ -236,36 +226,29 @@ void fSnakeGame::PrintScore()
 	move(11, 33);
 	printw("G: %d", gate_cnt);
 
-	// move(11, 33);
-	// printw("time: ", result);
-
 	return;
 }
 
-// position a new fruit in the game window
 void fSnakeGame::PositionFruit()
 {
 	while (1)
 	{
-		int tmpx = rand() % 21 + 6; // +1 to avoid the 0
+		int tmpx = rand() % 21 + 6;
 		int tmpy = rand() % 21 + 6;
 
-		// check that the fruit is not positioned on the snake
 		for (int i = 0; i < snake.size(); i++)
 		{
 			if (snake[i].x == tmpx && snake[i].y == tmpy)
 			{
-				continue; // if true, ignore the following and go back to the beginning of function
+				continue;
 			}
 		}
 
-		// check that the fruit is positioned within the game window
 		if (tmpx >= 21 - 2 || tmpy >= 21 - 3)
 		{
-			continue; // if true, ignore the following and go back to the beginning of function
+			continue;
 		}
 
-		// if the coordinates are valid, add fruit in the window
 		fruit.x = tmpx;
 		fruit.y = tmpy;
 		break;
@@ -281,25 +264,22 @@ void fSnakeGame::PositionPoison()
 {
 	while (1)
 	{
-		int tmpx = rand() % 21 + 6; // +1 to avoid the 0
+		int tmpx = rand() % 21 + 6;
 		int tmpy = rand() % 21 + 6;
 
-		// check that the fruit is not positioned on the snake
 		for (int i = 0; i < snake.size(); i++)
 		{
 			if (snake[i].x == tmpx && snake[i].y == tmpy)
 			{
-				continue; // if true, ignore the following and go back to the beginning of function
+				continue;
 			}
 		}
 
-		// check that the fruit is positioned within the game window
 		if (tmpx >= 21 - 2 || tmpy >= 21 - 3)
 		{
-			continue; // if true, ignore the following and go back to the beginning of function
+			continue;
 		}
 
-		// if the coordinates are valid, add fruit in the window
 		poison.x = tmpx;
 		poison.y = tmpy;
 		break;
@@ -310,16 +290,13 @@ void fSnakeGame::PositionPoison()
 	refresh();
 }
 
-// set game over situations
 bool fSnakeGame::FatalCollision()
 {
-	// if the snake hits the edge of the window
 	if (map_arr[snake[0].x - 4][snake[0].y] == 1)
 	{
 		return true;
 	}
 
-	// if the snake collides into himself
 	for (int i = 2; i < snake.size(); i++)
 	{
 		if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
@@ -331,7 +308,6 @@ bool fSnakeGame::FatalCollision()
 	return false;
 }
 
-// define behaviour when snake eats the fruit
 bool fSnakeGame::GetsFruit()
 {
 
@@ -343,7 +319,6 @@ bool fSnakeGame::GetsFruit()
 		max_snake++;
 		PrintScore();
 
-		// if score is a multiple of 100, increase snake speed
 		if ((score % 10) == 0)
 		{
 			del -= 1000;
@@ -368,7 +343,6 @@ bool fSnakeGame::GetsPoison()
 
 		PrintScore();
 
-		// if score is a multiple of 100, increase snake speed
 		if ((score % 10) == 0)
 		{
 			del += 1000;
@@ -394,7 +368,6 @@ bool fSnakeGame::GetsGate()
 
 		PrintScore();
 
-		// if score is a multiple of 100, increase snake speed
 		if ((score % 100) == 0)
 		{
 			del += 1000;
@@ -501,7 +474,6 @@ void fSnakeGame::PassGate(int gate_x, int gate_y)
 	}
 }
 
-// define snake's movements
 void fSnakeGame::MoveSnake()
 {
 	int KeyPressed = getch();
@@ -540,22 +512,19 @@ void fSnakeGame::MoveSnake()
 			snake_length = -1;
 		break;
 	case KEY_BACKSPACE:
-		direction = 'q'; // key to quit the game
+		direction = 'q';
 		break;
 	}
 
-	// the snake doesn't eat fruit, remains same size
 	if (!bEatsFruit)
 	{
 		attron(COLOR_PAIR(1));
-		move(snake[snake.size() - 1].y, snake[snake.size() - 1].x); // moves at the end of the tail
-		printw(" ");																								// add empty ch to remove last character
+		move(snake[snake.size() - 1].y, snake[snake.size() - 1].x);
+		printw(" ");
 		refresh();
-		snake.pop_back(); // removes the last element in the vector, reducing the container size by one
+		snake.pop_back();
 	}
 
-	// the snake moves and we add an extra character at the beginning of the vector
-	// add a head and initialise new coordinates for CharPosition according to the direction input
 	if (bEatsGate)
 	{
 		if (snake[0].x == Gate[0].x && snake[0].y == Gate[0].y)
@@ -584,19 +553,15 @@ void fSnakeGame::MoveSnake()
 		snake.insert(snake.begin(), CharPosition(snake[0].x, snake[0].y + 1));
 	}
 
-	// move to the new CharPosition coordinates
-
 	if (bEatsPoison)
 	{
-		// TODO: 뱀 꼬리 하나 줄여야되는데 이 부분에 구현해야함.
-
 		mvprintw(snake[snake.size() - 1].y, snake[snake.size() - 1].x, " ");
 		snake.pop_back();
 
 		for (int i = 0; i < snake_length; i++)
 		{
 			move(snake[i].y, snake[i].x);
-			printw("%c", partchar); // add a new head
+			printw("%c", partchar);
 		}
 		refresh();
 
@@ -604,7 +569,7 @@ void fSnakeGame::MoveSnake()
 	}
 
 	move(snake[0].y, snake[0].x);
-	printw("%c", partchar); // add a new head
+	printw("%c", partchar);
 	refresh();
 	return;
 }
@@ -632,11 +597,11 @@ void fSnakeGame::PlayGame()
 		MoveSnake();
 		DrawWindow();
 
-		if (direction == 'q') //exit
+		if (direction == 'q')
 		{
 			break;
 		}
 
-		usleep(del); // delay
+		usleep(del);
 	}
 }
